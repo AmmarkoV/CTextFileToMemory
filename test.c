@@ -6,5 +6,5 @@ int main(int argc,const char **argv)
     struct cTextFileToMemory ctftm;
     
     loadTextFileToMemory(&ctftm,"testList.txt");
-    
+     
 }
