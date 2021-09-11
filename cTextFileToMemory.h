@@ -15,14 +15,19 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #define C_TEXTFILETOMEMORY_VERSION 0.0
 
 
 struct cTextFileToMemory
 {
-  unsigned char * buffer;
-  unsigned long   bufferSize; 
+  char * ptr;
+  char * buffer;
+  unsigned long   bufferSize;
+  
+  
+  unsigned long   numberOfLines;
 };
 
 
@@ -41,7 +46,7 @@ static unsigned char * ctftm_readFileToMemory(const char * filename,unsigned lon
     // allocate memory to contain the whole file:
     unsigned long bufferSize = sizeof(char)*(lSize+1);
     char * buffer = (char*) malloc (bufferSize);
-    if (buffer == 0 ) { fclose(pFile); return 0; }
+    if (buffer == 0 ) { errno = ENOMEM; fclose(pFile); return 0; }
 
     // copy the file into the buffer:
     size_t result = fread (buffer,1,lSize,pFile);
@@ -62,6 +67,42 @@ static unsigned char * ctftm_readFileToMemory(const char * filename,unsigned lon
     return buffer;
 }
 
+
+static ssize_t ctftm_getline(char **lineptr, size_t *n,struct cTextFileToMemory * ctftm)
+{ 
+    if (lineptr == NULL || n == NULL || ctftm == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    
+    if (*lineptr == NULL) 
+    {
+        *n = 128; /* init len */
+        if ((*lineptr = (char *)malloc(*n)) == NULL) {
+            errno = ENOMEM;
+            return -1;
+        }
+    }
+    
+    char done = 0;
+    while (!done)
+    { 
+        switch (*ctftm->ptr)
+        {
+          case 0   :   done = 1; break;
+          case 10  :  *ctftm->ptr=0;  done = 1; break;
+          case 13  :  *ctftm->ptr=0;  done = 1; break;
+          case EOF :  *ctftm->ptr=0;  done = 1; break;
+          
+        };
+        
+      ++ctftm->ptr;
+    }
+    
+
+}
+
+
 static int loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * filename)
 {
     if (ctftm==0)    { return 0; }
@@ -69,10 +110,20 @@ static int loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * f
     //----------------------------
     
     ctftm->buffer = ctftm_readFileToMemory(filename,&ctftm->bufferSize);
+    ctftm->ptr    = ctftm->buffer;
     
     if (ctftm->buffer!=0)
     {
         
+        char * line = NULL;
+        size_t len = 0;
+        ssize_t read;
+    
+        int done=0;
+        while  ( (!done) && ((read = ctftm_getline(&line, &len,ctftm)) != -1) ) 
+        {
+            
+        }
     }
     
     return 0;
