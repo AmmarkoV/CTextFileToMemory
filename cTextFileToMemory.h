@@ -75,14 +75,15 @@ static ssize_t ctftm_getline(char **lineptr, size_t *n,struct cTextFileToMemory 
         return -1;
     }
     
+    /*
     if (*lineptr == NULL) 
     {
-        *n = 128; /* init len */
+        *n = 128; // initial length
         if ((*lineptr = (char *)malloc(*n)) == NULL) {
             errno = ENOMEM;
             return -1;
         }
-    }
+    }*/
     
     char done = 0;
     while (!done)
@@ -129,7 +130,6 @@ static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const ch
     
     if (ctftm->buffer!=0)
     {
-        
         char * line = NULL;
         size_t len = 0;
         ssize_t read;
