@@ -27,6 +27,9 @@ struct cTextFileToMemory
   unsigned long   bufferSize;
   
   
+  char ** strings;
+  unsigned int populatedStrings;
+  unsigned int allocatedStrings;
   unsigned long   numberOfLines;
 };
 
@@ -93,7 +96,7 @@ static int ctftm_countNumberOfLines(struct cTextFileToMemory * ctftm)
 
 
 
-static unsigned int ctftm_getline(struct cTextFileToMemory * ctftm)
+static unsigned int ctftm_parselines(struct cTextFileToMemory * ctftm)
 { 
     if (ctftm == NULL) 
     {
@@ -104,14 +107,23 @@ static unsigned int ctftm_getline(struct cTextFileToMemory * ctftm)
     char done = 0;
     char * ptrStar = ctftm->ptr;
     
-    while (!done)
-    { 
+    
+    char * limit = ctftm->buffer + ctftm->bufferSize;
+    
+    
+    if  ( (ctftm->allocatedStrings!=0) && (ctftm->populatedStrings) )
+    {
+        
+    }
+    
+    while (ctftm->ptr < limit)
+    {
         switch (*ctftm->ptr)
         {
-          case 0   :                  done = 1; break;
-          case 10  :  *ctftm->ptr=0;  done = 1; break;
-          case 13  :  *ctftm->ptr=0;  done = 1; break;
-          case EOF :  *ctftm->ptr=0;  done = 1; break;
+          case 0   :                  break;
+          case 10  :  *ctftm->ptr=0;  break;
+          case 13  :  *ctftm->ptr=0;  break;
+          case EOF :  *ctftm->ptr=0;  break;
           
         };
         
@@ -131,18 +143,31 @@ static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const ch
     
     ctftm->buffer = ctftm_readFileToMemory(filename,&ctftm->bufferSize);
     ctftm->ptr    = ctftm->buffer;
-    
-     
+
+
     if (ctftm->buffer!=0)
     {
-        
         ctftm_countNumberOfLines(ctftm);
-        ssize_t read;
-    
-        int done=0;
-        while  ( (!done) && ((read = ctftm_getline(ctftm)) != -1) ) 
+        fprintf(stderr," Number of lines in file %u ...\n",ctftm->numberOfLines);
+        
+        ctftm->strings = (char **) malloc(ctftm->numberOfLines * sizeof(char **)); 
+        ctftm->allocatedStrings = ctftm->numberOfLines;
+        ctftm->populatedStrings = 0;
+        
+        if (ctftm->strings!=0)
         {
-            fprintf(stderr," %u ...\n",read);
+         ssize_t read;
+    
+         int done=0;
+         while  ( (!done) && ((read = ctftm_parselines(ctftm)) != -1) ) 
+           {
+            fprintf(stderr," %lu ...",read);
+            if (read==0)
+            { 
+              fprintf(stderr,"Done\n",read);
+              break; 
+            }
+           }
         }
     }
     
