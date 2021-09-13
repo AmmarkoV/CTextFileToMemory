@@ -68,41 +68,12 @@ static unsigned char * ctftm_readFileToMemory(const char * filename,unsigned lon
 }
 
 
-static unsigned int ctftm_getline(struct cTextFileToMemory * ctftm)
-{ 
-    if (ctftm == NULL) 
-    {
-        errno = EINVAL;
-        return -1;
-    }
-     
-    char done = 0;
-    
-    char * ptr = ctftm->buffer;
-    while (!done)
-    { 
-        switch (*ptr)
-        {
-          case 0   :                            done = 1; break;
-          case 10  :  *ctftm->ptr=0;  done = 1; break;
-          case 13  :  ctftm->numberOfLines+=1;  done = 1; break;
-          case EOF :                            done = 1; break;
-          
-        };
-        
-      ++ptr;
-    }
-    
-  return ctftm->numberOfLines;
-}
-
-
 static int ctftm_countNumberOfLines(struct cTextFileToMemory * ctftm)
 {
-    
     char * ptr = ctftm->buffer;
     char * limit = ptr + ctftm->bufferSize;
     
+    ctftm->numberOfLines=0;
     
     while (ptr<limit)
     {
@@ -118,6 +89,38 @@ static int ctftm_countNumberOfLines(struct cTextFileToMemory * ctftm)
     }
   return ctftm->numberOfLines;
 }
+
+
+
+
+static unsigned int ctftm_getline(struct cTextFileToMemory * ctftm)
+{ 
+    if (ctftm == NULL) 
+    {
+        errno = EINVAL;
+        return -1;
+    }
+     
+    char done = 0;
+    char * ptrStar = ctftm->ptr;
+    
+    while (!done)
+    { 
+        switch (*ctftm->ptr)
+        {
+          case 0   :                  done = 1; break;
+          case 10  :  *ctftm->ptr=0;  done = 1; break;
+          case 13  :  *ctftm->ptr=0;  done = 1; break;
+          case EOF :  *ctftm->ptr=0;  done = 1; break;
+          
+        };
+        
+      ++ctftm->ptr;
+    }
+    
+  return ctftm->ptr - ptrStar;
+}
+
 
 
 static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * filename)
@@ -139,7 +142,7 @@ static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const ch
         int done=0;
         while  ( (!done) && ((read = ctftm_getline(ctftm)) != -1) ) 
         {
-            
+            fprintf(stderr," %u ...\n",read);
         }
     }
     
