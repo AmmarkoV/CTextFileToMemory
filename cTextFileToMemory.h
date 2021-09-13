@@ -103,7 +103,22 @@ static ssize_t ctftm_getline(char **lineptr, size_t *n,struct cTextFileToMemory 
 }
 
 
-static int loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * filename)
+static int ctftm_countNumberOfLines(struct cTextFileToMemory * ctftm)
+{
+    
+    char * ptr = ctftm->buffer;
+    char * limit = ptr + ctftm->bufferSize;
+    
+    
+    while (ptr<limit)
+    {
+        
+        
+    }
+}
+
+
+static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * filename)
 {
     if (ctftm==0)    { return 0; }
     if (filename==0) { return 0; }
@@ -127,6 +142,18 @@ static int loadTextFileToMemory(struct cTextFileToMemory * ctftm, const char * f
     }
     
     return 0;
+}
+
+
+
+static unsigned int ctftm_getNumberOfRecords(struct cTextFileToMemory * ctftm)
+{
+   return 0; 
+}
+
+static char * ctftm_getRecords(struct cTextFileToMemory * ctftm,unsigned int record)
+{
+   return 0; 
 }
 
 #ifdef __cplusplus

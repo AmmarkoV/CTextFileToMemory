@@ -5,6 +5,37 @@ int main(int argc,const char **argv)
 {
     struct cTextFileToMemory ctftm;
     
-    loadTextFileToMemory(&ctftm,"testList.txt");
+    char filename[512]={0};
+    snprintf(filename,512,"testList.txt");
+    
+    
+     //Parse command-line arguments
+     for (int i=0; i<argc; i++)
+        { 
+            if (strcmp(argv[i],"--from")==0)
+                {
+                    if(argc>i+1)
+                    { 
+                      snprintf(filename,512,"%s",argv[i+1]);
+                    }
+                }
+        }
+    
+    
+    
+    
+    
+    if ( ctftm_loadTextFileToMemory(&ctftm,filename) )
+    { 
+      fprintf(stderr,"Found %u records in file %s\n",ctftm_getNumberOfRecords(&ctftm),filename);
+      for (int i=0; i<ctftm_getNumberOfRecords(&ctftm); i++)
+      {
+          fprintf(stderr,"Record %u = Value `%s`",i,ctftm_getRecords(&ctftm,i));
+      }
+    } else
+    {
+      fprintf(stderr,"Could not open file %s\n",filename);
+    }
+  
      
 }
