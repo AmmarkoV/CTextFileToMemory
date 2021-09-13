@@ -68,39 +68,32 @@ static unsigned char * ctftm_readFileToMemory(const char * filename,unsigned lon
 }
 
 
-static ssize_t ctftm_getline(char **lineptr, size_t *n,struct cTextFileToMemory * ctftm)
+static unsigned int ctftm_getline(struct cTextFileToMemory * ctftm)
 { 
-    if (lineptr == NULL || n == NULL || ctftm == NULL) {
+    if (ctftm == NULL) 
+    {
         errno = EINVAL;
         return -1;
     }
-    
-    /*
-    if (*lineptr == NULL) 
-    {
-        *n = 128; // initial length
-        if ((*lineptr = (char *)malloc(*n)) == NULL) {
-            errno = ENOMEM;
-            return -1;
-        }
-    }*/
-    
+     
     char done = 0;
+    
+    char * ptr = ctftm->buffer;
     while (!done)
     { 
-        switch (*ctftm->ptr)
+        switch (*ptr)
         {
-          case 0   :   done = 1; break;
+          case 0   :                            done = 1; break;
           case 10  :  *ctftm->ptr=0;  done = 1; break;
-          case 13  :  *ctftm->ptr=0;  done = 1; break;
-          case EOF :  *ctftm->ptr=0;  done = 1; break;
+          case 13  :  ctftm->numberOfLines+=1;  done = 1; break;
+          case EOF :                            done = 1; break;
           
         };
         
-      ++ctftm->ptr;
+      ++ptr;
     }
     
-
+  return ctftm->numberOfLines;
 }
 
 
@@ -113,9 +106,17 @@ static int ctftm_countNumberOfLines(struct cTextFileToMemory * ctftm)
     
     while (ptr<limit)
     {
+        switch (*ptr)
+        {
+          case 0   :                            break;
+          case 10  :  ctftm->numberOfLines+=1;  break;
+          case 13  :  ctftm->numberOfLines+=1;  break;  
+          case EOF :                            break;
+        };
         
-        
+        ++ptr; 
     }
+  return ctftm->numberOfLines;
 }
 
 
@@ -128,14 +129,15 @@ static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const ch
     ctftm->buffer = ctftm_readFileToMemory(filename,&ctftm->bufferSize);
     ctftm->ptr    = ctftm->buffer;
     
+     
     if (ctftm->buffer!=0)
     {
-        char * line = NULL;
-        size_t len = 0;
+        
+        ctftm_countNumberOfLines(ctftm);
         ssize_t read;
     
         int done=0;
-        while  ( (!done) && ((read = ctftm_getline(&line, &len,ctftm)) != -1) ) 
+        while  ( (!done) && ((read = ctftm_getline(ctftm)) != -1) ) 
         {
             
         }
