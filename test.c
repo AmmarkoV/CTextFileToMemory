@@ -27,7 +27,7 @@ int main(int argc,const char **argv)
       fprintf(stderr,"Found %u records in it\n",ctftm_getNumberOfRecords(&ctftm));
       for (int i=0; i<ctftm_getNumberOfRecords(&ctftm); i++)
       {
-          fprintf(stderr,"Record %u = Value `%s`",i,ctftm_getRecords(&ctftm,i));
+          fprintf(stderr,"Record %u = Value `%s`\n",i,ctftm_getRecords(&ctftm,i));
       }
     } else
     {
