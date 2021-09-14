@@ -21,10 +21,6 @@ int main(int argc,const char **argv)
                 }
         }
     
-    
-    
-    
-    
     fprintf(stderr,"Attempting to open file : %s\n",filename);
     if ( ctftm_loadTextFileToMemory(&ctftm,filename) )
     { 

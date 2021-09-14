@@ -105,32 +105,34 @@ static unsigned int ctftm_parselines(struct cTextFileToMemory * ctftm)
     }
      
     char done = 0;
-    char * ptrStar = ctftm->ptr;
+    char * ptrStart = ctftm->ptr;
     
-    
+    char *previousString = ptrStart;
     char * limit = ctftm->buffer + ctftm->bufferSize;
     
     
-    if  ( (ctftm->allocatedStrings!=0) && (ctftm->populatedStrings) )
+    if  ( (ctftm->allocatedStrings!=0) && (ctftm->populatedStrings==0) )
     {
-        
-    }
-    
-    while (ctftm->ptr < limit)
-    {
+     while (ctftm->ptr < limit)
+     {
         switch (*ctftm->ptr)
         {
           case 0   :                  break;
-          case 10  :  *ctftm->ptr=0;  break;
-          case 13  :  *ctftm->ptr=0;  break;
-          case EOF :  *ctftm->ptr=0;  break;
-          
+          case 10  :
+          case 13  :
+          case EOF :
+           *ctftm->ptr=0; 
+            ctftm->strings[ctftm->populatedStrings]=previousString;
+            ctftm->populatedStrings+=1; 
+            previousString=ctftm->ptr+1;
+          break;
         };
-        
       ++ctftm->ptr;
+     }
     }
     
-  return ctftm->ptr - ptrStar;
+    
+  return ctftm->ptr - ptrStart;
 }
 
 
@@ -163,11 +165,12 @@ static int ctftm_loadTextFileToMemory(struct cTextFileToMemory * ctftm, const ch
            {
             fprintf(stderr," %lu ...",read);
             if (read==0)
-            { 
+            {
               fprintf(stderr,"Done\n",read);
-              break; 
+              break;
             }
            }
+          return 1;
         }
     }
     
