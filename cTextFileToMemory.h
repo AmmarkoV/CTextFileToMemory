@@ -1,5 +1,6 @@
 /** @file cTextFileToMemory.h
  *  @brief  A header only library that can help parsing text files 
+ *  https://github.com/AmmarkoV/CTextFileToMemory
  *  @author Ammar Qammaz (AmmarkoV)
  */
  
@@ -17,7 +18,7 @@ extern "C"
 #include <string.h>
 #include <errno.h>
 
-#define C_TEXTFILETOMEMORY_VERSION 0.0
+#define C_TEXTFILETOMEMORY_VERSION 0.01
 
 
 struct cTextFileToMemory
